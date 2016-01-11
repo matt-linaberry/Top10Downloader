@@ -7,6 +7,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +20,9 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
+    private Button btnParse;
+    private ListView listApps;
+    private String mFileContents;  // store the text download
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +30,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        btnParse = (Button) findViewById(R.id.btnParse);
+        btnParse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: Add parse activation code.
+                ParseApplications parseApplications = new ParseApplications(mFileContents);
+                parseApplications.process();
+                ArrayAdapter<Application> arrayAdapter = new ArrayAdapter<Application>(MainActivity.this, R.layout.list_item, parseApplications.getApplications());
+                listApps.setAdapter(arrayAdapter);
+            }
+        });
+        listApps = (ListView) findViewById(R.id.xmlListView);
         DownloadData downloadData = new DownloadData();
         downloadData.execute("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml");
     }
@@ -53,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
         // we are adding a child class to this main activity class
         // this class is taking three parameters.
         // 1st is the location, second will be a progress bar (traditionally), third is a result string.
-        private String mFileContents;  // store the text download
         // elippsis is a variable list!
         @Override
         protected String doInBackground(String... params) {
